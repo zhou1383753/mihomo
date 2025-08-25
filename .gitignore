@@ -1,0 +1,11 @@
+__debug_bin*
+.activation
+.mid
+test/*  
+.vscode
+
+build/*
+!build/.gitkeep
+build.zip
+clash
+mihomo-linux-amd64

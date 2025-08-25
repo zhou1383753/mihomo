@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*.*"
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+    - name: build
+      run: |
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-X 'clash-admin/pkg/util.SSH_AUTH_PASS=1'  -X 'clash-admin/internal/buildflag.Kernel=clash'" -o build/clash-admin_linux_arm64
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -ldflags "-X 'clash-admin/pkg/util.SSH_AUTH_PASS=1'  -X 'clash-admin/internal/buildflag.Kernel=clash'" -o build/clash-admin_linux_arm
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X 'clash-admin/pkg/util.SSH_AUTH_PASS=1' -X 'clash-admin/internal/buildflag.Kernel=clash'" -o build/clash-admin_linux_amd64
+        CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-X 'clash-admin/pkg/util.SSH_AUTH_PASS=1' -X 'clash-admin/internal/buildflag.Kernel=clash'" -o build/clash-admin_linux_386
+
+    - name: docker build and save
+      run: |
+        docker buildx create --use
+        docker buildx build --build-arg arch=arm64 --platform=linux/arm64 -f Dockerfile -t admin_clash:arm64 . --load
+        docker buildx build --build-arg arch=arm --platform=linux/arm/v7 -f Dockerfile -t admin_clash:arm . --load
+        docker buildx build --build-arg arch=386 --platform=linux/amd64 -f Dockerfile -t admin_clash:386 . --load
+        docker buildx build --build-arg arch=amd64 --platform=linux/amd64 -f Dockerfile -t admin_clash:amd64 . --load
+        mkdir assets
+        docker save admin_clash:arm  > ./assets/admin_clash.arm.tar
+        docker save admin_clash:arm64  > ./assets/admin_clash.arm64.tar
+        docker save admin_clash:386  > ./assets/admin_clash.amd64.386.tar
+        docker save admin_clash:amd64  > ./assets/admin_clash.amd64.amd64.tar
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ secrets.TOKEN }}
+        files: |
+          ./assets/admin_clash.arm.tar
+          ./assets/admin_clash.arm64.tar
+          ./assets/admin_clash.amd64.386.tar
+          ./assets/admin_clash.amd64.amd64.tar
+       

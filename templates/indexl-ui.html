@@ -1,0 +1,1301 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="cache-control" content="no-siteapp">
+    <title>会员后台</title>
+    <meta name="author" content="StarYu">
+    <link rel="stylesheet" href="./static/layui/css/layui.css" media="all">
+    <script src="./static/layui/layui.js" charset="utf-8"></script>
+    <style>
+        .layui-table-view .layui-table td,
+        .layui-table-view .layui-table th {
+            padding: 0px 0;
+            border-top: none;
+            border-left: none;
+        }
+
+        .layui-table-cell {
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .layui-table td,
+        .layui-table th {
+
+            font-size: 12px;
+        }
+
+        .custom-layer-top {
+            top: 0 !important;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .layui-tab {
+            margin: 0px 0;
+            text-align: left !important;
+        }
+
+        .layui-table {
+            width: 100%;
+            margin: 0px 0;
+            background-color: #fff;
+            color: #5f5f5f;
+        }
+    </style>
+
+</head>
+
+<body class="layui-layout-body">
+
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title">
+            <li class="layui-this">sk5列表</li>
+            <li>日志</li>
+            <li>链接</li>
+            <li>常用脚本</li>
+            <li>API文档</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+
+                <div class="layui-layout layui-layout-admin" id="toggleSidebar">
+                    <!-- 在 HTML 中创建一个元素来显示数据 -->
+                    <table class="layui-table" lay-size="sm" lay-skin="line" id="test" lay-filter="test"></table>
+
+                    <script type="text/html" id="toolbarDemo">
+                        <div style="display: flex;">
+                           <div class="layui-btn-container" style="padding-top: 0px;">
+                                <button class="layui-btn layui-btn-xs" lay-event="getCheckData">选中编辑</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="getCheckLength">地区检测</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="DelayDetection">延迟检测</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="Copy">复制数据</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="Restore">恢复出厂配置</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="setApiProxy">设置api代理</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="TaskList">定时任务列表</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="eduMac">选中改mac</button>
+                                <button class="layui-btn layui-btn-xs" lay-event="eduIP">选中改IP</button>
+                                <!-- <button class="layui-btn layui-btn-xs" lay-event="logs">日志</button> -->
+                                                                                        
+                            </div>
+                                                                                    
+                                                                                    
+                                                         
+                         <div id="currentData"></div> <div id="totalData"></div>
+                            </div>             
+                        </script>
+                </div>
+
+
+            </div>
+            <div class="layui-tab-item">
+                <div id="logContainer">数据接收中...</div>
+            </div>
+
+
+            <div class="layui-tab-item">
+                <div id="clientCount">客户端数量: 0</div>
+                <div id="connectionsContainer">活动链接</div>
+
+            </div>
+
+
+            <div class="layui-tab-item">
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">飞行模式切换IP开关</label>
+                        <div class="layui-input-block">
+                            <input type="checkbox" id="switchTest" name="open" lay-skin="switch" lay-filter="switchTest"
+                                title="ON|OFF">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="layui-tab-item">内容-5</div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // 创建 WebSocket 连接
+        var ws = new WebSocket('ws://10.0.0.254:9999/logs?token=&level=info');
+
+        // 连接打开时的处理
+        ws.onopen = function () {
+            console.log('WebSocket 连接已打开');
+        };
+
+        // 接收到消息时的处理
+        ws.onmessage = function (event) {
+            console.log('接收到数据: ', event.data);
+
+            // 获取显示日志的div
+            var logContainer = document.getElementById('logContainer');
+
+            // 获取当前的时间
+            var currentTime = new Date().toLocaleString();
+
+            // 创建一个新的p元素来显示日志和时间
+            var logElem = document.createElement('p');
+            logElem.textContent = currentTime + ': ' + event.data;
+
+            // 将新的p元素添加到div的开始位置
+            logContainer.insertBefore(logElem, logContainer.firstChild);
+        };
+
+        // 连接关闭时的处理
+        ws.onclose = function () {
+            console.log('WebSocket 连接已关闭');
+        };
+
+        // 连接出错时的处理
+        ws.onerror = function (error) {
+            console.log('WebSocket 错误: ', error);
+        };
+    </script>
+
+    <script>
+        // 创建 WebSocket 连接
+        var ws = new WebSocket('ws://10.0.0.254:9999/traffic?token=');
+
+        // 从 localStorage 中获取总的上传和下载量
+        var totalUp = localStorage.getItem('totalUp') ? parseInt(localStorage.getItem('totalUp')) : 0;
+        var totalDown = localStorage.getItem('totalDown') ? parseInt(localStorage.getItem('totalDown')) : 0;
+
+        console.log('初始总上传: ' + totalUp + ', 初始总下载: ' + totalDown);
+
+        // 连接打开时的处理
+        ws.onopen = function () {
+            console.log('WebSocket 连接已打开');
+        };
+
+        // 接收到消息时的处理
+        ws.onmessage = function (event) {
+            console.log('接收到数据: ', event.data);
+
+            // 将数据从 JSON 格式转换为 JavaScript 对象
+            var data = JSON.parse(event.data);
+
+            // 更新总的上传和下载量
+            totalUp += data.up;
+            totalDown += data.down;
+
+            console.log('新的总上传: ' + totalUp + ', 新的总下载: ' + totalDown);
+
+            // 将总的上传和下载量存储在 localStorage 中
+            localStorage.setItem('totalUp', totalUp);
+            localStorage.setItem('totalDown', totalDown);
+
+            // 将数据转换为 KB 或 MB
+            var up = formatBytes(data.up);
+            var down = formatBytes(data.down);
+            var totalUpFormatted = formatBytes(totalUp);
+            var totalDownFormatted = formatBytes(totalDown);
+
+            console.log('格式化后的上传: ' + up + ', 下载: ' + down + ', 总上传: ' + totalUpFormatted + ', 总下载: ' + totalDownFormatted);
+
+            // 更新元素的内容
+            document.getElementById('currentData').textContent = '上传 :' + up + ' 下载:' + down;
+            document.getElementById('totalData').textContent = '总上传 :' + totalUpFormatted + ' 总下载:' + totalDownFormatted;
+        };
+
+        // 连接关闭时的处理
+        ws.onclose = function () {
+            console.log('WebSocket 连接已关闭');
+        };
+
+        // 连接出错时的处理
+        ws.onerror = function (error) {
+            console.log('WebSocket 错误: ', error);
+        };
+
+        // 创建一个函数来将字节转换为 KB 或 MB
+        function formatBytes(bytes) {
+            console.log('格式化字节: ' + bytes);
+            if (bytes >= 1000000) {
+                return (bytes / 1000000).toFixed(2) + ' MB';
+            } else {
+                return (bytes / 1000).toFixed(2) + ' KB';
+            }
+        }
+    </script>
+
+    <!-- //开关触发 -->
+    <script>
+        layui.use(['form', 'jquery'], function () {
+            var form = layui.form;
+            var $ = layui.jquery;
+
+            // 监听指定开关
+            form.on('switch(switchTest)', function (data) {
+                console.log('开关状态：' + (this.checked ? 'ON' : 'OFF'));
+                var status = this.checked ? 'false' : 'true'; // 注意这里的状态是反的，开关开启时，定时任务应该是启用（false），开关关闭时，定时任务应该是禁用（true）
+                $.get('/updateSchedule', { name: 'schedule1', status: status }, function (response) {
+                    console.log(response);
+                });
+            });
+
+            // 使用$.ajax获取数据
+            $.ajax({
+                url: "/scheduler?name=schedule1",
+                type: "GET",
+                success: function (data) {
+                    // 根据返回的数据设置开关的状态
+                    if (data.count > 0 && data.data[0].disabled === "false") {
+                        $("#switchTest").prop("checked", true);
+                    } else {
+                        $("#switchTest").prop("checked", false);
+                    }
+
+                    // 更新开关的显示
+                    form.render('checkbox');
+                }
+            });
+        });
+    </script>
+
+
+
+    <script>
+        // 创建 WebSocket 连接
+        var ws = new WebSocket('ws://10.0.0.254:9999/connections?token=');
+
+        // 连接打开时的处理
+        ws.onopen = function () {
+            console.log('WebSocket 连接已打开');
+        };
+
+        // 创建一个 Set 对象来存储不重复的 sourceIP
+        var sourceIPs = new Set();
+
+        // 接收到消息时的处理
+        ws.onmessage = function (event) {
+            console.log('接收到数据: ', event.data);
+
+            // 解析JSON数据
+            var data = JSON.parse(event.data);
+
+            // 创建表格并设置class为layui-table
+            var table = document.createElement('table');
+            table.className = 'layui-table layui-table-xs';
+            table.innerHTML = `
+            <tr>
+                <th>sourceIP</th>
+                <th>Network</th>
+                <th>Host/IP</th>
+                <th>Upload (KB)</th>
+                <th>Download (KB)</th>
+                <th>Start (Minutes Ago)</th>
+                <th>Chains</th>
+            </tr>
+        `;
+
+            // 获取当前时间
+            var now = new Date();
+
+            // 填充表格
+            data.connections.forEach(function (connection) {
+                // 计算上传和下载的KB数
+                var uploadKB = connection.upload / 1024;
+                var downloadKB = connection.download / 1024;
+
+                // 计算开始时间到现在的分钟数
+                var start = new Date(connection.start);
+                var minutesAgo = Math.round((now - start) / 60000);
+
+                // 将 sourceIP 添加到 Set 中
+                sourceIPs.add(connection.metadata.sourceIP);
+
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${connection.metadata.sourceIP}</td>
+                <td>${connection.metadata.network}</td>
+                <td>${connection.metadata.host}:${connection.metadata.destinationPort} / ${connection.metadata.destinationIP}:${connection.metadata.destinationPort} </td>
+                <td>${uploadKB.toFixed(2)}</td>
+                <td>${downloadKB.toFixed(2)}</td>
+                <td>${minutesAgo}</td>
+                <td>${connection.chains.join(', ')}</td>
+            `;
+                table.appendChild(row);
+            });
+
+            // 获取显示连接的div
+            var connectionsContainer = document.getElementById('connectionsContainer');
+
+            // 清空div
+            connectionsContainer.innerHTML = '';
+
+            // 将表格添加到div中
+            connectionsContainer.appendChild(table);
+
+            // 更新客户端数量
+            var clientCount = document.getElementById('clientCount');
+            clientCount.textContent = '客户端数量: ' + sourceIPs.size;
+        };
+
+        // 连接关闭时的处理
+        ws.onclose = function () {
+            console.log('WebSocket 连接已关闭');
+        };
+
+        // 连接出错时的处理
+        ws.onerror = function (error) {
+            console.log('WebSocket 错误: ', error);
+        };
+    </script>
+
+    <script type="text/html" id="barDemo">
+        <div class="layui-clear-space">
+            <a class="layui-btn layui-btn-xs" lay-event="edit">手动切换</a>
+            <a class="layui-btn layui-btn-xs" lay-event="AutoSwitch">自动切换</a>
+        </div>
+    </script>
+
+    <script>
+        layui.use('table', function () {
+            var table = layui.table;
+            var $ = layui.jquery;
+            var layer = layui.layer;
+            table.render({
+                elem: '#test'
+                , url: 'listdata'
+                , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+                , defaultToolbar: ['filter', 'exports', 'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+                    title: '提示'
+                    , layEvent: 'LAYTABLE_TIPS'
+                    , icon: 'layui-icon-tips'
+                }]
+                , title: '用户数据表'
+                , cols: [[
+                    { type: 'checkbox', fixed: 'left' }
+                    , { field: 'Name', title: 'ID', width: 60, fixed: 'left', unresize: true, sort: true }
+                    , { field: 'Type', title: '代理类型', width: 60 }
+                    , { field: 'Server', title: '代理IP', width: 150 }
+                    , { field: 'Port', title: '端口', width: 60 }
+                    , { field: 'Username', title: '账号', width: 100 }
+                    , { field: 'Password', title: '密码', width: 100 }
+                    , { field: 'UUID', title: 'vmessID', width: 100 }
+                    , { field: 'Cipher', title: 'ssl加密方式', width: 100 }
+                    , { field: 'Address', title: '地区', width: 160 }
+                    , { field: 'Delay', title: '延迟', width: 60 }
+                    , { field: 'CIDR', title: '内网绑定', width: 100 }
+                    , { field: 'URL', title: 'api', width: 100 }
+                    , { fixed: 'right', title: 'api操作', width: 134, minWidth: 125, toolbar: '#barDemo' }
+                ]]
+                , page: true
+            });
+
+            //头工具栏事件
+            table.on('toolbar(test)', function (obj) {
+
+                var checkStatus = table.checkStatus(obj.config.id);
+
+                switch (obj.event) {
+                    //批量修改
+                    case 'getCheckData':
+                        //获取数据
+                        var data = JSON.stringify(checkStatus.data);
+                        var sl = checkStatus.data;
+                        layer.open({
+
+                            //formType: 2,//这里依然指定类型是多行文本框，但是在下面content中也可绑定多行文本框在这里插入代码片
+                            title: '批量修改代理',
+                            area: ['540px', '430px'],
+                            btnAlign: 'c',
+                            offset: 't', // 't' 表示顶部
+                            closeBtn: '1',//右上角的关闭
+                            content: `
+                                     <div style="font-size: 6px;">
+                                        <input type="radio" name="type" value="socks5" title="socks5" checked="">socks5
+                                        <input type="radio" name="type" value="http" title="http">http
+                                        <input type="radio" name="type" value="ss" title="ss">ss
+                                        <input type="radio" name="type" value="vmess" title="vmess">vmess
+                                        <br>批量修改:${sl.length}个代理<br>
+                                        sk5/http代理格式为1.1.1.1|端口|账号|密码|2022-11-11 一行一个<br>
+                                        ss代理格式为1.1.1.1|端口|加密方式|密码<br>
+                                        vm代理格式为1.1.1.1|端口|uuid|alterId
+
+                                        <textarea name="txt_remark" id="remark" style="width:470px;height:180px;"></textarea>
+
+                                    </div>
+`,
+
+
+                            btn: ['确认', '取消', '关闭'],
+                            btn1: function (index, layero) {
+
+                                var textValue = $('#remark').val(); // 获取多行文本框的值
+                                var lines = textValue.split('\n'); // 按换行符分割文本
+                                var jsonValue = JSON.stringify(lines); // 将数组转换为 JSON 格式的字符串
+                                var radioButtonValue = $('input[name="type"]:checked').val();
+
+                                var ydaili = checkStatus.data;
+                                var xdaili = lines;
+
+                                var newdata = [];
+
+                                for (var i = 0; i < ydaili.length; i++) {
+                                    var ydailiItem = ydaili[i];
+                                    var serverInfo = xdaili[i].split('|');
+                                    var combined = ydailiItem.Name + "|" + serverInfo[0] + "|" + serverInfo[1] + "|" + serverInfo[2] + "|" + serverInfo[3];
+                                    newdata.push(combined);
+                                }
+
+                                var jsonOutput = JSON.stringify(newdata);
+
+
+                                $.ajax({
+                                    url: "update-config",
+                                    //url:"update",之前是这个
+                                    type: 'post',
+                                    data: {
+                                        xdaili: jsonOutput,
+                                        sl: sl.length,
+                                        type: radioButtonValue
+                                    },
+                                    datatype: 'json',
+
+
+                                    success: function (data) {
+
+                                        if (data.code === 0) {
+
+                                            table.reload('test', {
+                                                url: '/listdata', // 新的数据接口
+                                            });
+                                            layer.msg('修改成功！');
+                                            layer.close(index);
+
+                                        } else {
+
+                                            alert(data + '！');
+
+                                        }
+                                    },
+                                })
+
+                                return false;
+                            },
+                            btn2: function (index) {
+                                //alert('您刚才点击了取消按钮');
+                                layer.close(index);
+                                return false;//点击按钮按钮不想让弹层关闭就返回false
+                            },
+                            btn3: function (index) {
+                                //alert('您刚才点击了关闭按钮');
+                                layer.close(index);
+                                return false;//点击按钮按钮不想让弹层关闭就返回false
+                            }
+
+                        });
+                        break;
+                    //批量检测
+                    case 'getCheckLength':
+                        var sl = checkStatus.data;
+                        var data = JSON.stringify(checkStatus.data);
+                        $.ajax({
+                            url: "check",
+                            type: 'post',
+                            data: {
+                                ydaili: data
+                            },
+                            datatype: 'json',
+                            // 弹出等待层
+                            beforeSend: function () {
+                                index = layer.load(1, { // 使用不同的样式
+                                    shade: [0.5, '#000'], // 半透明背景
+                                    content: '数据加载中，请稍候...', // 添加文本提示
+                                    skin: 'custom-layer-top'
+                                });
+                            },
+                            success: function (data) {
+                                // 关闭等待层
+                                layer.close(index);
+
+                                // 重新加载数据表和表格
+                                table.reload('test', {
+                                    url: '/listdata'
+                                });
+
+                                // 弹出层展示返回数据
+                                layer.open({
+                                    title: '批量检测代理',
+                                    area: ['500px', '380px'],
+                                    btnAlign: 'c',
+                                    offset: 't',
+                                    closeBtn: '1',
+                                    content: '<textarea name="txt_remark" id="remark" style="width:450px;height:210px;">' + data + '</textarea>',
+                                    btn: ['确认', '取消', '关闭'],
+                                    btn1: function (index, layero) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn2: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn3: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    }
+                                });
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                // 处理错误
+                                layer.close(index);
+                                layer.alert('请求失败: ' + textStatus, { icon: 2 }); // 显示错误信息
+                            }
+                        });
+                        break;
+                    //复制数据
+                    case 'Copy':
+                        //取json数据
+                        //获取数据
+                        var objArr = checkStatus.data; // 对象数组
+                        var aa = '';
+                        for (var i = 0; i < objArr.length; i++) { // 使用对象数组进行遍历
+                            var obj = objArr[i];
+                            aa = aa + obj['Server'] + '|' + obj['Port'] + '|' + obj['Username'] + '|' + obj['Password'] + '\n';
+                        }
+
+                        const textarea = document.createElement('textarea');
+                        textarea.value = aa;
+                        document.body.appendChild(textarea);
+
+                        textarea.select();
+                        if (document.execCommand('copy')) {
+                            document.execCommand('copy');
+
+                        }
+                        document.body.removeChild(textarea);
+
+                        layer.msg('复制成功', {
+                            offset: 't',  // 't' 表示顶部
+                            // 其他配置项...
+                        });
+
+
+                        break;
+                    //检测是否全选
+                    case 'isAll':
+                        layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                        break;
+                    //恢复出厂配置
+                    case 'Restore':
+                        // 创建并显示弹出窗口
+                        layer.open({
+                            type: 1,
+                            offset: 't', // 't' 表示顶部
+                            content: '恢复后将覆盖当前配置，确定继续吗？', // 设置弹窗的内容
+                            btn: ['确定', '取消'],
+                            yes: function (index, layero) {
+                                // 点击确定按钮时的操作
+
+                                // 执行 AJAX GET 请求
+                                $.ajax({
+                                    type: "GET",
+                                    url: "yaml",
+                                    success: function (response) {
+                                        table.reload('test'); // 重载表格
+                                        layer.close(index); // 关闭弹窗
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    //选中api切换
+                    case 'Select_API_Switch': // 对应 "选中api切换" 按钮的 lay-event
+                        var data = checkStatus.data; // 获取选中的数据
+
+                        //获取data对象Name的值
+                        var name = data[0].Name;
+                        ///sk5Name?name=name 按这种格式拼接
+                        var host = "http://" + window.location.host + "/sk5Name?name=";
+                        //ajax get访问host
+                        $.ajax({
+                            url: host + name,
+                            type: 'GET',
+                            success: function (response) {
+                                layer.msg('切换成功', {
+                                    offset: 't',  // 't' 表示顶部
+                                    // 其他配置项...
+                                });
+
+                                // 重载表格
+                                table.reload('test', {
+                                    url: '/listdata', // 新的数据接口
+                                });
+
+                            },
+                            error: function (xhr, status, error) {
+                                layer.msg('切换失败', {
+                                    offset: 't',  // 't' 表示顶部
+                                    // 其他配置项...
+                                });
+                            }
+                        });
+
+                        break;
+                    //设置api代理
+                    case 'setApiProxy':
+                        layer.open({
+                            type: 1,
+                            title: '请输入API的URL和类型',
+                            area: ['420px', '300px'], // 宽高
+                            offset: 't', // 't' 表示顶部
+                            content: `
+            <div style="margin: 15px;">
+                <div class="layui-form-item">
+
+
+                     <textarea  id="apiURL" name="apiURL"  placeholder="输入api提取网址 提取后的格式为IP:端口" class="layui-textarea"></textarea>
+
+                </div>
+                <div class="layui-form-item">
+
+
+                        <input type="radio" id="type1" name="type" value="socks5" checked> socks5
+                        <input type="radio" id="type2" name="type" value="http"> http
+
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" id="submit">确定</button>
+                    </div>
+                </div>
+            </div>
+        `,
+                            success: function (layero, index) {
+                                // 在弹出层渲染成功后，绑定确定按钮的点击事件
+                                $('#submit').on('click', function () {
+                                    var apiURL = $('#apiURL').val(); // 获取输入的API的URL
+                                    var type = $('input[name="type"]:checked').val(); // 获取选中的类型
+                                    var selectedData = table.checkStatus(obj.config.id).data; // 获取选中的表格行的数据
+
+                                    // 创建一个数组，用于存储每个选中行的数据
+                                    var dataToSend = [];
+
+                                    // 遍历选中的行
+                                    for (var i = 0; i < selectedData.length; i++) {
+                                        // 创建一个只包含 Name、Type 和 apiURL 的对象
+                                        var row = {
+                                            Name: selectedData[i].Name,
+                                            Type: type,
+                                            URL: apiURL
+                                        };
+
+                                        // 将对象添加到数组中
+                                        dataToSend.push(row);
+                                    }
+
+                                    // 将数组转换为 JSON 格式的字符串
+                                    var jsonToSend = JSON.stringify(dataToSend);
+
+                                    // 将 JSON 字符串发送到服务器
+                                    $.ajax({
+                                        url: "write-to-config", // 服务器端处理写入操作的URL
+                                        type: 'post',
+                                        data: jsonToSend,
+                                        success: function (response) {
+
+                                            //重载表格
+                                            table.reload('test', {
+                                                url: '/listdata', // 新的数据接口
+                                            });
+                                            alert('设置从API获取代理成功！')
+                                        },
+                                        error: function (xhr, status, error) {
+                                            alert('设置从API获取代理失败！')
+                                        }
+                                    });
+
+                                    layer.close(index);
+                                });
+                            }
+                        });
+                        break;
+                    // 定时api拨号设置
+                    case 'addTask':
+                        // 获取选中的表格的 name
+                        var sl = checkStatus.data;
+                        var data = JSON.stringify(checkStatus.data);
+                        var name = checkStatus.data[0].Name;
+                        // 打开一个新的弹出窗口
+                        layer.open({
+                            type: 1,
+                            title: '添加新任务',
+                            area: ['420px', '440px'], // 宽高
+                            offset: 't',
+                            content: `
+                             <div style="margin: 15px;">
+                            <form id="addTaskForm">
+
+                            <div class="layui-form-item">
+                               <textarea  id="apiURL" name="apiURL"  placeholder="输入api提取网址 提取后的格式为IP:端口" class="layui-textarea"></textarea>
+                           </div>
+
+                           <div class="layui-form-item">
+                            <input type="radio" id="type1" name="type" value="socks5" checked> socks5
+                            <input type="radio" id="type2" name="type" value="http"> http
+                          </div>
+
+                          <div class="layui-form-item">
+                                <div class="layui-input-group">
+                                  <input type="text" id="interval" value="0" name="interval" placeholder="输入运行间隔" class="layui-input">
+                                  <div class="layui-input-split layui-input-suffix" style="cursor: pointer;">
+                                    秒(运行间隔)
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="layui-form-item">
+                                <div class="layui-input-group">
+                                  <input type="text" id="count" name="count" value="0" class="layui-input">
+                                  <div class="layui-input-split layui-input-suffix" style="cursor: pointer;">
+                                    次(总运行次数)
+                                  </div>
+                                </div>
+                              </div>
+
+
+                              <input type="submit" class="layui-btn" value="提交">
+                            </form></div>
+                          `
+                        });
+                        // 处理表单提交事件
+                        $("#addTaskForm").submit(function (e) {
+                            e.preventDefault();
+                            //获取当前域名
+                            var host = "http://" + window.location.host + "/sk5Name?name=";
+                            // 获取输入框的值
+                            // var url = $("#url").val();
+                            var interval = $("#interval").val();
+                            var count = $("#count").val();
+
+                            // 发送 POST 请求到 /addTask
+                            $.ajax({
+                                url: '/addTask',
+                                type: 'POST',
+                                data: {
+                                    Name: name,
+                                    URL: host + name,
+                                    Interval: interval,
+                                    Count: count
+                                },
+                                success: function () {
+                                    layer.msg('任务添加成功');
+                                },
+                                error: function () {
+                                    layer.msg('任务添加失败');
+                                }
+                            });
+                        });
+                        break;
+                    //延迟检测 DelayDetection
+                    case 'DelayDetection':
+                        layer.open({
+                            type: 1,
+                            title: '检测所有IP的延迟',
+                            area: ['420px', '250px'], // 宽高
+                            offset: 't',
+                            content: `
+                             <div style="margin: 15px;">
+                            <form id="DelayDetection">
+                          <div class="layui-form-item">
+                                <div class="layui-input-group">
+                                    <select id="TargetURL" name="TargetURL" class="layui-input">
+    <option value="http://www.taobao.com" selected>淘宝-国内</option>
+    <option value="http://www.google.com">谷歌-国外</option>
+    <option value="http://www.gstatic.com/generate_204">通用</option>
+</select>
+<div class="layui-input-split layui-input-suffix" style="cursor: pointer;">
+                                    <<选择测速地区
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="layui-form-item">
+                                <div class="layui-input-group">
+                                  <input type="text" id="timeout" name="timeout" value="2000" class="layui-input">
+                                  <div class="layui-input-split layui-input-suffix" style="cursor: pointer;">
+                                    测超时(秒 )                                  </div>
+                                </div>
+                              </div>
+                              <input type="submit" class="layui-btn" value="检测">
+                            </form></div>
+                        `
+
+                        });
+
+                        // 处理表单提交事件
+                        $("#DelayDetection").submit(function (e) {
+                            e.preventDefault();
+
+                            var TargetURL = $("#TargetURL").val();
+                            var timeout = $("#timeout").val();
+
+                            // 发送 POST 请求到 /addTask
+                            $.ajax({
+                                url: '/DelayDetection',
+                                type: 'POST',
+                                data: {
+                                    TargetURL: TargetURL,
+                                    timeout: timeout
+                                },
+                                beforeSend: function () {
+                                    // 显示等待动画
+                                    layer.load(1, { offset: 't' }); // 这是一个示例，您需要替换为您的等待动画代码
+                                },
+                                success: function (data) {
+                                    data.code === 0 ? layer.msg('延迟检测成功') : layer.msg('延迟检测失败');
+                                    //重载表格
+                                    table.reload('test', {
+                                        url: '/listdata', // 新的数据接口
+                                    });
+                                },
+                                complete: function () {
+                                    // 关闭等待动画
+                                    layer.closeAll('loading'); // 这是一个示例，您需要替换为您的等待动画代码
+                                },
+                            });
+                        });
+
+                        break;
+                        //定时任务列表
+
+                        //获取/TaskList的数据
+                        $.ajax({
+                            url: '/tasksList',
+                            type: 'GET',
+                            success: function (data) {
+                                // 将对象的属性转换为字符串
+                                var dataStr = '';
+                                for (var key in data) {
+                                    if (data.hasOwnProperty(key)) {
+                                        dataStr += key + ': ' + data[key] + '\n';
+                                    }
+                                }
+
+                                // 弹出层展示返回数据
+                                layer.open({
+                                    title: '定时任务列表',
+                                    area: ['500px', '380px'],
+                                    btnAlign: 'c',
+                                    offset: 't',
+                                    closeBtn: '1',
+                                    content: '<textarea name="txt_remark" id="remark" style="width:450px;height:210px;">' + dataStr + '</textarea>',
+                                    btn: ['确认', '取消', '关闭'],
+                                    btn1: function (index, layero) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn2: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn3: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    }
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                layer.msg('获取定时任务列表失败');
+                            }
+                        });
+                        break;
+
+                        //获取/TaskList的数据
+                        $.ajax({
+                            url: '/tasksList',
+                            type: 'GET',
+                            success: function (data) {
+                                // 将对象数组的属性转换为字符串
+                                var dataStr = '';
+                                for (var i = 0; i < data.length; i++) {
+                                    for (var key in data[i]) {
+                                        if (data[i].hasOwnProperty(key)) {
+                                            dataStr += key + ': ' + data[i][key] + '\n';
+                                        }
+                                    }
+                                    dataStr += '\n'; // 添加一个空行分隔每个对象
+                                }
+
+                                // 弹出层展示返回数据
+                                layer.open({
+                                    title: '定时任务列表',
+                                    area: ['500px', '380px'],
+                                    btnAlign: 'c',
+                                    offset: 't',
+                                    closeBtn: '1',
+                                    content: '<textarea name="txt_remark" id="remark" style="width:450px;height:210px;">' + dataStr + '</textarea>',
+                                    btn: ['确认', '取消', '关闭'],
+                                    btn1: function (index, layero) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn2: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn3: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    }
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                layer.msg('获取定时任务列表失败');
+                            }
+                        });
+                        break;
+                    case 'TaskList':
+                        //获取/TaskList的数据
+                        $.ajax({
+                            url: '/tasksList',
+                            type: 'GET',
+                            success: function (response) {
+                                // 创建一个HTML表格
+                                var dataStr = '<table class="layui-table" border="1"><tr><th>Name</th><th>总次数</th><th>剩余次数</th><th>间隔秒</th></tr>';
+                                var data = response.data; // 获取data属性
+                                for (var i = 0; i < data.length; i++) {
+                                    dataStr += '<tr>';
+                                    dataStr += '<td>' + data[i].name + '</td>';
+                                    dataStr += '<td>' + data[i].count + '</td>';
+                                    dataStr += '<td>' + data[i].remaining_count + '</td>';
+                                    dataStr += '<td>' + data[i].interval / 1000000000 + '</td>';
+                                    dataStr += '</tr>';
+                                }
+                                dataStr += '</table>';
+
+                                // 弹出层展示返回数据
+                                layer.open({
+                                    title: '定时任务列表',
+                                    area: ['500px', '380px'],
+                                    btnAlign: 'c',
+                                    offset: 't',
+                                    closeBtn: '1',
+                                    content: dataStr, // 使用表格作为内容
+                                    btn: ['确认', '取消', '关闭'],
+                                    btn1: function (index, layero) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn2: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn3: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    }
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                layer.msg('获取定时任务列表失败');
+                            }
+                        });
+                        break;
+                        //获取/TaskList的数据
+                        $.ajax({
+                            url: '/tasksList',
+                            type: 'GET',
+                            success: function (response) {
+                                // 将对象数组的属性转换为字符串
+                                var dataStr = '';
+                                var data = response.data; // 获取data属性
+                                for (var i = 0; i < data.length; i++) {
+                                    for (var key in data[i]) {
+                                        if (data[i].hasOwnProperty(key)) {
+                                            dataStr += key + ': ' + data[i][key] + '\n';
+                                        }
+                                    }
+                                    dataStr += '\n'; // 添加一个空行分隔每个对象
+                                }
+
+                                // 弹出层展示返回数据
+                                layer.open({
+                                    title: '定时任务列表',
+                                    area: ['500px', '380px'],
+                                    btnAlign: 'c',
+                                    offset: 't',
+                                    closeBtn: '1',
+                                    content: '<textarea name="txt_remark" id="remark" style="width:450px;height:210px;">' + dataStr + '</textarea>',
+                                    btn: ['确认', '取消', '关闭'],
+                                    btn1: function (index, layero) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn2: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    },
+                                    btn3: function (index) {
+                                        layer.close(index);
+                                        return false;
+                                    }
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                layer.msg('获取定时任务列表失败');
+                            }
+                        });
+                        break;
+                    //日志 获取ws://10.0.0.254:9999/logs?token=&level=info的数据
+                    case 'logs':
+                        // 创建 WebSocket 连接
+                        var ws = new WebSocket('ws://10.0.0.254:9999/logs?token=&level=info');
+
+                        // 创建一个变量来存储接收到的所有数据
+                        var allData = '';
+
+                        // 连接打开时的处理
+                        ws.onopen = function () {
+                            console.log('WebSocket 连接已打开');
+
+                            // 打开弹窗
+                            layer.open({
+                                title: '日志',
+                                area: ['500px', '380px'],
+                                btnAlign: 'c',
+                                offset: 't',
+                                closeBtn: '1',
+                                content: '等待数据...', // 初始内容
+                                btn: ['确认', '取消', '关闭'],
+                                btn1: function (index, layero) {
+                                    layer.close(index);
+                                    return false;
+                                },
+                                btn2: function (index) {
+                                    layer.close(index);
+                                    return false;
+                                },
+                                btn3: function (index) {
+                                    layer.close(index);
+                                    return false;
+                                }
+                            });
+                        };
+
+                        // 接收到消息时的处理
+                        ws.onmessage = function (event) {
+                            // 在这里处理接收到的数据
+                            console.log('接收到数据: ', event.data);
+
+                            // 获取当前日期和时间
+                            var now = new Date();
+                            var timestamp = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+
+                            // 将新数据添加到 allData 的前面，并添加一个换行符
+                            allData = timestamp + ': ' + event.data + '<br>' + allData;
+
+                            // 更新弹窗内容
+                            $('.layui-layer-content').html(allData);
+                        };
+
+                        // 连接关闭时的处理
+                        ws.onclose = function () {
+                            console.log('WebSocket 连接已关闭');
+                        };
+
+                        // 连接出错时的处理
+                        ws.onerror = function (error) {
+                            console.log('WebSocket 错误: ', error);
+                        };
+
+                        break;
+                    //一键修改Mac
+                    case 'eduMac':
+
+                        data = checkStatus.data;
+                        //打印data
+                        
+                        
+                        // 循环遍历选中的行
+                        for (var i = 0; i < data.length; i++) {
+                            // 获取 name 字段
+                            var name = data[i].Name;
+
+                            // 获取 name 后面的数字部分
+                            var num = name.substring(4);
+
+                            // 将 name1 替换为 skwifi_，并添加数字部分
+                            name = "skwifi_" + num;
+                            // 构造 URL
+                            var url = `/changeMAC?name=${name}`;
+
+                            // 发送 GET 请求
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => console.log(data))
+                                .catch(error => console.error('Error:', error));
+
+                        }
+
+                        layer.msg('修改成功！', {
+                            offset: 't'
+                        });
+
+                        break;
+                    //一键修改IP
+                    case 'eduIP':
+
+                        data = checkStatus.data;
+                        //打印data                                       
+                        // 循环遍历选中的行
+                        for (var i = 0; i < data.length; i++) {
+                            // 获取 name 字段
+                            var name = data[i].Name;
+                            // 构造 URL
+                            var url = `/sk5Name?name=${name}`;
+
+                            // 发送 GET 请求
+                            fetch(url)
+                                .then(response => response.json())
+                                .then(data => console.log(data))
+                                .catch(error => console.error('Error:', error));
+
+                        }
+                        // 重新加载数据表和表格
+                        table.reload('test', {
+                            url: '/listdata'
+                        });
+                        layer.msg('修改IP成功！', {
+                            offset: 't'
+                        });
+
+
+
+                        break;
+                    
+                    }
+
+            });
+
+
+            //监听行工具事件
+            table.on('tool(test)', function (obj) {
+                var data = obj.data;
+                //手动切换
+                if (obj.event === 'edit') {
+
+                    //获取data对象Name的值
+                    var name = data.Name;
+                    ///sk5Name?name=name 按这种格式拼接
+                    var host = "http://" + window.location.host + "/sk5Name?name=";
+                    //ajax get访问host
+                    $.ajax({
+                        url: host + name,
+                        type: 'GET',
+                        success: function (response) {
+                            layer.msg(name + '切换成功', {
+                                offset: 't',  // 't' 表示顶部
+                                // 其他配置项...
+                            });
+
+                            // 重载表格
+                            table.reload('test', {
+                                url: '/listdata', // 新的数据接口
+                            });
+
+                        },
+                        error: function (xhr, status, error) {
+                            layer.msg(name + '切换失败', {
+                                offset: 't',  // 't' 表示顶部
+                                // 其他配置项...
+                            });
+                        }
+                    });
+                }
+
+                //自动切换
+                if (obj.event === 'AutoSwitch') {
+                    layer.open({
+                        type: 1,
+                        title: data.Name + ':请输入API的URL和类型',
+                        area: ['420px', '250px'], // 宽高
+                        offset: 't',
+                        content: `
+                             <div style="margin: 15px;">
+                            <form id="addTaskForm">
+                          <div class="layui-form-item">
+                                <div class="layui-input-group">
+                                  <input type="text" id="interval" value="0" name="interval" placeholder="输入运行间隔" class="layui-input">
+                                  <div class="layui-input-split layui-input-suffix" style="cursor: pointer;">
+                                    秒(运行间隔)
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="layui-form-item">
+                                <div class="layui-input-group">
+                                  <input type="text" id="count" name="count" value="0" class="layui-input">
+                                  <div class="layui-input-split layui-input-suffix" style="cursor: pointer;">
+                                    次(总运行次数)
+                                  </div>
+                                </div>
+                              </div>
+                              <input type="submit" class="layui-btn" value="提交">
+                            </form></div>
+                        `
+
+                    });
+
+                    // 处理表单提交事件
+                    $("#addTaskForm").submit(function (e) {
+                        e.preventDefault();
+                        //获取当前域名
+                        var host = "http://" + window.location.host + "/sk5Name?name=";
+                        var interval = $("#interval").val();
+                        var count = $("#count").val();
+
+                        // 发送 POST 请求到 /addTask
+                        $.ajax({
+                            url: '/addTask',
+                            type: 'POST',
+                            data: {
+                                Name: data.Name,
+                                URL: host + data.Name,
+                                Interval: interval,
+                                Count: count
+                            },
+                            success: function () {
+                                layer.msg('任务添加成功');
+                            },
+                            //关闭弹窗
+                            complete: function () {
+                                layer.closeAll();
+                            },
+                            error: function () {
+                                layer.msg('任务添加失败');
+                            }
+                        });
+                    });
+
+                }
+
+            });
+        });
+
+
+    </script>
+
+</body>
+
+</html>

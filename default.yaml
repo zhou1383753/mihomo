@@ -1,0 +1,99 @@
+mixed-port: 7890
+redir-port: 7892
+tproxy-port: 7893
+authentication: [""]
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: true
+external-controller: :9999
+external-ui: ui
+secret: 
+tun: {enable: true, stack: system, device: utun, auto-route: false, dns-hijack: ["*tcp://8.8.8.8:53", "*8.8.8.8:53"]}
+experimental: {ignore-resolve-fail: true, interface-name: en0}
+dns: {enable: true, ipv6: false, listen: 0.0.0.0:53, use-hosts: true, fake-ip-range: 198.18.0.1/16, enhanced-mode: fake-ip, fake-ip-filter: ["*.lan", "*.baidu.com","*.aliyuncs.com"], default-nameserver: [114.114.114.114, 223.5.5.5, https://1.0.0.1/dns-query, https://223.5.5.5/dns-query, 127.0.0.1:53], nameserver: [114.114.114.114, 223.5.5.5, 127.0.0.1:53], fallback: [1.0.0.1, 8.8.4.4], fallback-filter: {geoip: true}}
+
+store-selected: true
+find-process-mode: "off"
+proxies:
+  - { name: "Name1", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name2", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name3", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name4", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name5", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name6", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name7", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name8", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name9", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name10", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name11", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name12", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name13", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name14", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name15", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name16", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name17", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name18", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name19", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name20", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name21", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name22", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name23", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name24", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name25", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name26", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name27", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name28", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name29", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name30", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name31", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name32", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name33", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name34", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name35", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name36", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name37", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name38", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name39", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+  - { name: "Name40", type: socks5, server: "1.1.1.1", port: 1080, username: "user", password: "pass", cipher: "", uuid: "", address: "", delay: "", udp: true, alterId: "", url: ""}
+rules:
+  - SRC-IP-CIDR,10.0.1.0/24,Name1
+  - SRC-IP-CIDR,10.0.2.0/24,Name2
+  - SRC-IP-CIDR,10.0.3.0/24,Name3
+  - SRC-IP-CIDR,10.0.4.0/24,Name4
+  - SRC-IP-CIDR,10.0.5.0/24,Name5
+  - SRC-IP-CIDR,10.0.6.0/24,Name6
+  - SRC-IP-CIDR,10.0.7.0/24,Name7
+  - SRC-IP-CIDR,10.0.8.0/24,Name8
+  - SRC-IP-CIDR,10.0.9.0/24,Name9
+  - SRC-IP-CIDR,10.0.10.0/24,Name10
+  - SRC-IP-CIDR,10.0.11.0/24,Name11
+  - SRC-IP-CIDR,10.0.12.0/24,Name12
+  - SRC-IP-CIDR,10.0.13.0/24,Name13
+  - SRC-IP-CIDR,10.0.14.0/24,Name14
+  - SRC-IP-CIDR,10.0.15.0/24,Name15
+  - SRC-IP-CIDR,10.0.16.0/24,Name16
+  - SRC-IP-CIDR,10.0.17.0/24,Name17
+  - SRC-IP-CIDR,10.0.18.0/24,Name18
+  - SRC-IP-CIDR,10.0.19.0/24,Name19
+  - SRC-IP-CIDR,10.0.20.0/24,Name20
+  - SRC-IP-CIDR,10.0.21.0/24,Name21
+  - SRC-IP-CIDR,10.0.22.0/24,Name22
+  - SRC-IP-CIDR,10.0.23.0/24,Name23
+  - SRC-IP-CIDR,10.0.24.0/24,Name24
+  - SRC-IP-CIDR,10.0.25.0/24,Name25
+  - SRC-IP-CIDR,10.0.26.0/24,Name26
+  - SRC-IP-CIDR,10.0.27.0/24,Name27
+  - SRC-IP-CIDR,10.0.28.0/24,Name28
+  - SRC-IP-CIDR,10.0.29.0/24,Name29
+  - SRC-IP-CIDR,10.0.30.0/24,Name30
+  - SRC-IP-CIDR,10.0.31.0/24,Name31
+  - SRC-IP-CIDR,10.0.32.0/24,Name32
+  - SRC-IP-CIDR,10.0.33.0/24,Name33
+  - SRC-IP-CIDR,10.0.34.0/24,Name34
+  - SRC-IP-CIDR,10.0.35.0/24,Name35
+  - SRC-IP-CIDR,10.0.36.0/24,Name36
+  - SRC-IP-CIDR,10.0.37.0/24,Name37
+  - SRC-IP-CIDR,10.0.38.0/24,Name38
+  - SRC-IP-CIDR,10.0.39.0/24,Name39
+  - SRC-IP-CIDR,10.0.40.0/24,Name40

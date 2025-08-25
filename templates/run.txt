@@ -1,0 +1,1 @@
+/usr/sbin/uhttpd -f -h /etc/clash/templates -r OpenWrt -n 3 -p 0.0.0.0:8080 -p [::]:8080 -I index.html

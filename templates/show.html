@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>设备ID:</h2>
+<p>{{.MaccEncrypted}}</p>
+
+<form action="/activate" method="post">
+  <label for="activationCode">激活码:</label><br>
+  <input type="text" id="activationCode" name="activationCode"><br>
+  <input type="hidden" style="display: none;" id="macid" name="macid" value="{{.MaccEncrypted}}"><br>
+  <input type="submit" value="Submit">
+</form> 
+
+</body>
+</html>

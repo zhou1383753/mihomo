@@ -1,0 +1,564 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="cache-control" content="no-siteapp">
+    <title>会员后台</title>
+    <meta name="author" content="StarYu">
+    <link rel="stylesheet" href="./static/layui/css/layui.css" media="all">
+    <script src="./static/layui/layui.js" charset="utf-8"></script>
+    <style>
+        .layui-table-view .layui-table td,
+        .layui-table-view .layui-table th {
+            padding: 0px 0;
+            border-top: none;
+            border-left: none;
+
+
+        }
+
+        .layui-table-cell {
+            height: 20px;
+            line-height: 20px;
+            padding: 0 5px;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .layui-table td,
+        .layui-table th {
+
+            font-size: 12px;
+        }
+
+        .layui-layer-dialog .layui-layer-content {
+
+            font-size: 8px;
+
+        }
+
+        .custom-layer-top {
+            top: 0 !important;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .layui-tab {
+            margin: 0px 0;
+            text-align: left !important;
+        }
+
+        .layui-table {
+            width: 100%;
+            margin: 0px 0;
+            background-color: #fff;
+            color: #5f5f5f;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title">
+            <li class="layui-this">vpn列表</li>
+            <li>常用脚本 </li>
+            <li>API文档</li>
+            <!-- <li>标签4</li>
+            <li>标签5</li> -->
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+
+                <table class="layui-table" lay-size="sm" lay-skin="line" id="test" lay-filter="test"></table>
+
+                <script type="text/html" id="toolbarDemo">
+                    <div class="layui-btn-container" style="padding-top: 0px;">
+                        <button class="layui-btn layui-btn-xs" lay-event="edit">选中编辑</button>
+                        <button class="layui-btn layui-btn-xs" lay-event="setscheduler">定时重播</button>
+                        <button class="layui-btn layui-btn-xs" lay-event="switchipmac">改选中IP+MAC</button>
+                        <button class="layui-btn layui-btn-xs" lay-event="copy">复制数据</button>
+                        <button class="layui-btn layui-btn-xs" lay-event="updata">日志</button>
+                        <button class="layui-btn layui-btn-xs" lay-event="tol2tp">转l2tp</button>
+                        <button class="layui-btn layui-btn-xs" lay-event="topptp">转pptp</button>                    
+                    </div>
+                </script>
+            </div>
+            <div class="layui-tab-item">
+                <button class="layui-btn layui-btn-xs" onclick="handleAction('Gai_Ip')">一键修改IP</button>
+                <button class="layui-btn layui-btn-xs" onclick="handleAction('Gai_Mac')">一键修改MAC</button>
+                <button class="layui-btn layui-btn-xs" onclick="handleAction('Gai_WifiName')">一键修改wifi名</button>
+                <button class="layui-btn layui-btn-xs" onclick="handleAction('Gai_Ip_Mac')">一键修改IP+MAC</button>
+                <button class="layui-btn layui-btn-xs"
+                    onclick="handleAction('Gai_Ip_Mac_WifiName')">一键修改IP+MAC+wifi名</button>
+                <button class="layui-btn layui-btn-xs" onclick="handleAction('Gai_WifiName_Default')">恢复默认wifi名</button>
+
+                <form class="layui-form" action="">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">飞行模式切换IP开关</label>
+                        <div class="layui-input-block">
+                            <input type="checkbox" id="switchTest" name="open" lay-skin="switch" lay-filter="switchTest"
+                                title="ON|OFF">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="layui-tab-item">api文档</div>
+            <!-- <div class="layui-tab-item">内容-4</div>
+            <div class="layui-tab-item">内容-5</div> -->
+        </div>
+    </div>
+
+
+    <!-- 主内容 -->
+
+
+    <!-- //开关触发 -->
+    <script>
+        layui.use(['form', 'jquery'], function () {
+            var form = layui.form;
+            var $ = layui.jquery;
+
+            // 监听指定开关
+            form.on('switch(switchTest)', function (data) {
+                console.log('开关状态：' + (this.checked ? 'ON' : 'OFF'));
+                var status = this.checked ? 'false' : 'true'; // 注意这里的状态是反的，开关开启时，定时任务应该是启用（false），开关关闭时，定时任务应该是禁用（true）
+                $.get('/updateSchedule', { name: 'schedule1', status: status }, function (response) {
+                    console.log(response);
+                });
+            });
+
+            // 使用$.ajax获取数据
+            $.ajax({
+                url: "/scheduler?name=schedule1",
+                type: "GET",
+                success: function (data) {
+                    // 根据返回的数据设置开关的状态
+                    if (data.count > 0 && data.data[0].disabled === "false") {
+                        $("#switchTest").prop("checked", true);
+                    } else {
+                        $("#switchTest").prop("checked", false);
+                    }
+
+                    // 更新开关的显示
+                    form.render('checkbox');
+                }
+            });
+        });
+    </script>
+
+
+
+    <script>
+        layui.use(['layer', 'jquery', 'table'], function () {
+            var layer = layui.layer;
+            var $ = layui.jquery;
+            var table = layui.table;
+
+            window.handleAction = function (param) {
+                layer.confirm('确定要运行脚本？', {
+                    title: '确定要运行脚本？',
+                    offset: 't', // 't' 表示顶部
+                    closeBtn: '1', // 右上角的关闭
+                    btn: ['确定', '取消'] // 按钮
+                }, function (index) {
+                    // 关闭确认框
+                    layer.close(index);
+
+                    // 构建请求 URL
+                    var url = "run-script?scriptname=" + param;
+                    alert(param + '一键切换运行完成');
+
+
+                    // 发送 GET 请求
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (response) {
+                            // 请求成功时的处理
+                            // 重载表格
+                            table.reload('test', {
+                                url: '/all-interfaces', // 新的数据接口
+                            });
+                        },
+                        error: function (error) {
+                            // 请求失败时的处理
+                            alert('设置失败: ' + error.statusText);
+                        }
+                    });
+                });
+            };
+        });
+    </script>
+
+
+    <script>
+        layui.use(['table', 'jquery'], function () {
+            var table = layui.table;
+            var $ = layui.jquery;
+
+            // 渲染表格
+            table.render({
+                elem: '#test'
+                , url: 'all-interfaces'
+                , toolbar: '#toolbarDemo'
+                , defaultToolbar: ['filter', 'exports', 'print', {
+                    title: '提示'
+                    , layEvent: 'LAYTABLE_TIPS'
+                    , icon: 'layui-icon-tips'
+                }]
+                , title: '用户数据表'
+                , cols: [[
+                    { type: 'checkbox', fixed: 'left' },
+                    { field: 'name', title: 'ID', width: 100, fixed: 'left', unresize: true, sort: true },
+                    { field: 'type', title: '类型', width: 100 },
+                    { field: 'connect-to', title: '服务器', width: 150 },
+                    { field: 'user', title: '用户名', width: 100 },
+                    { field: 'password', title: '密码', width: 100 },
+                    {
+                        field: 'running',
+                        title: '连接状态',
+                        width: 100,
+                        templet: function (d) {
+                            return d.running === 'true' ? '<span style="color: green;">✓</span>' : '<span style="color: red;">x</span>';
+                        }
+                    },
+                    { field: 'disabled', title: '接口是否被禁用', width: 100, templet: function (d) { return d.disabled === 'true' ? '<span style="color: red;">已禁用</span>' : '<span style="color: green;">已启用</span>'; } },
+                    { field: 'scheduler_interval', title: '定时拨号', width: 100 },
+                    // { fixed: 'right', title: '操作', width: 134, minWidth: 125, toolbar: '#barDemo' },
+                ]]
+                , page: true
+            });
+            //头工具栏事件
+            table.on('toolbar(test)', function (obj) {
+                var layEvent = obj.event;
+                var checkStatus = table.checkStatus(obj.config.id);
+                var $ = layui.jquery;
+                var table1 = layui.table;
+                switch (obj.event) {
+                    //case 触发编辑事件
+                    case 'edit':
+                        //获取数据
+                        var data = JSON.stringify(checkStatus.data);
+                        var sl = checkStatus.data;
+                        layer.open({
+
+                            //formType: 2,//这里依然指定类型是多行文本框，但是在下面content中也可绑定多行文本框在这里插入代码片
+                            title: '批量修改代理',
+                            area: ['540px', '400px'],
+                            btnAlign: 'c',
+                            offset: 't', // 't' 表示顶部
+                            closeBtn: '1',//右上角的关闭
+                            content: `<style>.layui-layer-dialog .layui-layer-content {
+    padding: 5px;
+
+}</style>
+<div style="font-size: 6px;">
+                                      批量修改:${sl.length}个vpn<br>
+                                        格式为1.1.1.1|user|pass或hb.example.com|user|pass 一行一个
+                                        <br>
+                                        <textarea name="txt_remark" id="remark" style="width:470px;height:180px;"></textarea>
+                                    </div>
+                                `,
+
+                            btn: ['确认', '取消', '关闭'],
+                            btn1: function (index, layero) {
+
+
+                                var textValue = $('#remark').val(); // 获取多行文本框的值
+                                var lines = textValue.split('\n'); // 按换行符分割文本
+                                var jsonValue = JSON.stringify(lines); // 将数组转换为 JSON 格式的字符串
+                                var radioButtonValue = $('input[name="type"]:checked').val();
+
+                                var ydaili = checkStatus.data;
+                                var xdaili = lines;
+
+                                var newdata = [];
+
+                                for (var i = 0; i < ydaili.length; i++) {
+                                    var ydailiItem = ydaili[i];
+                                    var serverInfo = xdaili[i].split('|');
+                                    var combined = ydailiItem.name + "|" + serverInfo[0] + "|" + serverInfo[1] + "|" + serverInfo[2] + "|" + serverInfo[3];
+                                    newdata.push(combined);
+                                }
+
+                                var jsonOutput = JSON.stringify(newdata);
+
+
+                                $.ajax({
+                                    url: "vpn-update",
+                                    type: 'post',
+                                    data: {
+                                        xdaili: jsonOutput,
+                                        sl: sl.length
+                                    },
+                                    datatype: 'json',
+
+
+                                    success: function (data) {
+
+                                        if (data.code === 0) {
+
+                                            layer.msg('操作完成，即将跳转到代理列表页...', {
+                                                time: 2000, // 设定2秒后关闭提示框
+                                                shade: [0.8, '#fff'], // 设定遮罩层样式
+                                                shadeClose: true, // 点击遮罩层时关闭提示框
+                                                end: function () {
+                                                    // 延迟2秒后执行跳转
+                                                    table.reload('test', {
+                                                        url: '/all-interfaces', // 新的数据接口
+                                                    });
+                                                }
+                                            });
+
+                                        } else {
+
+                                            alert(data + '！');
+
+                                        }
+                                    }
+                                })
+
+                                return false;
+                            },
+                            btn2: function (index) {
+                                //alert('您刚才点击了取消按钮');
+                                layer.close(index);
+                                return false;//点击按钮按钮不想让弹层关闭就返回false
+                            },
+                            btn3: function (index) {
+                                //alert('您刚才点击了关闭按钮');
+                                layer.close(index);
+                                return false;//点击按钮按钮不想让弹层关闭就返回false
+                            }
+
+                        });
+                        break;
+                    //触发 设置定时重播事件
+                    case 'setscheduler':
+                        var sl = checkStatus.data;
+                        var data = JSON.stringify(checkStatus.data);
+                        var vpnname = checkStatus.data[0].name;
+                        layer.prompt({
+                            title: '修改' + vpnname + '的重播间隔（秒）0秒为不重播，请勿批量设置',
+                            formType: 0,
+                            offset: 't'
+                        }, function (text, index) {
+                            layer.close(index);
+
+                            // 构建请求 URL
+                            var url = "set-scheduler?scriptName=" + encodeURIComponent(vpnname) + "&interval=" + encodeURIComponent(text);
+
+                            // 使用 jQuery 发送 GET 请求
+                            $.get(url, function (response) {
+                                // 请求成功时的处理
+                                // 重载表格
+                                table.reload('test', {
+                                    url: '/all-interfaces', // 新的数据接口
+                                });
+
+                                alert(vpnname + '的重播间隔被设置为' + text + '秒');
+                            }).fail(function (error) {
+                                // 请求失败时的处理
+                                alert('设置失败: ' + error.statusText);
+                            });
+                        });
+
+
+                        break;
+                    //复制的
+                    case 'copy':
+                        //取json数据
+                        //获取数据
+                        var objArr = checkStatus.data; // 对象数组
+                        var aa = '';
+                        for (var i = 0; i < objArr.length; i++) { // 使用对象数组进行遍历
+                            var obj = objArr[i];
+                            aa = aa + obj['connect-to'] + '|' + obj['user'] + '|' + obj['password'] + '|' + obj['name'] + '\n';
+                        }
+
+                        const textarea = document.createElement('textarea');
+                        textarea.value = aa;
+                        document.body.appendChild(textarea);
+
+                        textarea.select();
+                        if (document.execCommand('copy')) {
+                            document.execCommand('copy');
+
+                        }
+                        document.body.removeChild(textarea);
+
+                        layer.msg('复制成功', {
+                            offset: 't',  // 't' 表示顶部
+                            // 其他配置项...
+                        });
+
+
+                        break;
+                    //触发判断是否全选
+                    case 'isAll':
+                        layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                        break;
+                    //触发 切换为pptp
+                    case 'topptp':
+                        layer.confirm('所有协议都被切换为pptp', {
+                            title: '确定要切换为pptp？',
+                            offset: 't', // 't' 表示顶部
+                            closeBtn: '1', // 右上角的关闭
+                            btn: ['确定', '取消'] // 按钮
+                        }, function (index) {
+                            // 关闭确认框
+                            layer.close(index);
+
+                            // 构建请求 URL
+                            var url = "run-script?scriptname=Vpn_Pptp";
+
+                            // 发送 GET 请求
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                dataType: 'json',
+                                beforeSend: function () {
+                                    // 显示加载动画
+                                    loaderIndex = layer.load(0, { shade: false, skin: 'custom-layer-top' });
+                                },
+                                success: function (response) {
+                                    // 请求成功时的处理
+                                    // 重载表格
+                                    table.reload('test', {
+                                        url: '/all-interfaces', // 新的数据接口
+                                    });
+
+                                    alert('链接协议已被修改为pptp');
+                                },
+                                error: function (error) {
+                                    // 请求失败时的处理
+                                    alert('设置失败: ' + error.statusText);
+                                },
+                                complete: function () {
+                                    // 请求完成后隐藏加载动画
+                                    layer.close(loaderIndex);
+                                }
+                            });
+                        });
+                        break;
+                    //触发 切换为l2tp
+                    case 'tol2tp':
+                        layer.confirm('所有协议都被切换为L2TP', {
+                            title: '确定要切换为L2TP？',
+                            offset: 't', // 't' 表示顶部
+                            closeBtn: '1', // 右上角的关闭
+                            btn: ['确定', '取消'] // 按钮
+                        }, function (index) {
+                            // 关闭确认框
+                            layer.close(index);
+
+                            // 构建请求 URL
+                            var url = "run-script?scriptname=Vpn_L2tp";
+
+                            // 发送 GET 请求
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                dataType: 'json',
+                                beforeSend: function () {
+                                    // 显示加载动画
+                                    loaderIndex = layer.load(0, { shade: false, skin: 'custom-layer-top' });
+                                },
+                                success: function (response) {
+                                    // 请求成功时的处理
+                                    // 重载表格
+                                    table.reload('test', {
+                                        url: '/all-interfaces', // 新的数据接口
+                                    });
+
+                                    alert('链接协议已被修改为l2tp');
+                                },
+                                error: function (error) {
+                                    // 请求失败时的处理
+                                    alert('设置失败: ' + error.statusText);
+                                },
+                                complete: function () {
+                                    // 请求完成后隐藏加载动画
+                                    layer.close(loaderIndex);
+                                }
+                            });
+                        });
+                        break;
+                    //触发 选中切换IP和MAC
+                    case 'switchipmac':
+                        var objArr = checkStatus.data; // 获取对象数组
+
+                        // 显示加载框，初始时没有进度信息
+                        var loadingIndex = layer.open({
+                            type: 1,
+                            title: false, // 不显示标题
+                            closeBtn: 0, // 不显示关闭按钮
+                            offset: 't', // 't' 表示顶部
+                            shadeClose: false, // 点击遮罩层不关闭加载框
+                            shade: [0.5, '#000'],
+                            content: '<div id="loadingText" style="padding: 20px; text-align: center;">正在修改选中的IP和MAC: 0 / ' + objArr.length + '</div>'
+                        });
+
+                        function updateLoadingText(index) {
+                            // 更新加载框文本显示当前进度
+                            document.getElementById('loadingText').innerHTML = '正在修改选中的IP和MAC: ' + index + ' / ' + objArr.length;
+                        }
+
+                        function sendRequest(index) {
+                            if (index >= objArr.length) {
+                                layer.close(loadingIndex); // 关闭加载框
+                                return; // 如果已经处理完所有对象，退出函数
+                            }
+
+                            updateLoadingText(index + 1); // 更新加载框的文本内容
+
+                            var obj = objArr[index];
+                            var name = obj['name'];
+                            var parts = name.split("_");
+                            var number = parts[1];
+
+                            $.ajax({
+                                url: "/add-test-scheduler?value=" + number,
+                                type: "GET",
+                                success: function (response) {
+                                    console.log("请求成功，响应为:", response);
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("请求失败，错误信息:", error);
+                                },
+                                complete: function () {
+                                    // 等待 2000 毫秒后发送下一个请求
+                                    setTimeout(function () {
+                                        sendRequest(index + 1);
+                                    }, 2000);
+                                }
+                            });
+                        }
+
+                        sendRequest(0); // 从数组的第一个元素开始
+                        break;
+
+
+                }
+
+
+            });
+
+        });
+    </script>
+
+
+</body>
+
+</html>
